@@ -12,10 +12,10 @@ const db = mysql.createConnection({
 
 db.connect((err) => {  
     if (err) {  
-        console.error('Errore di connessione: ' + err.stack);  
+        console.error('Error while connecting to mySQL ' + err.stack);  
         return;  
     }  
-    console.log('Connesso al database MySQL come ID ' + db.threadId);  
+    console.log('Connected to mySQL ' + db.threadId);  
 });  
 
 app.get('/', (req, res) => {  
@@ -27,7 +27,7 @@ app.get('/movies', (req, res) => {
         if (err) {  
             return res.status(500).send(err);  
         }  
-        res.json(results);   
+        res.json(results);    
     });  
 });  
 
