@@ -5,6 +5,7 @@ const port = 3000
 
 const db = mysql.createConnection({
     host: 'localhost',
+    port: 3306,
     user: 'root',
     password: '12345678',
     database: 'db_movie'
@@ -17,6 +18,8 @@ db.connect((err) => {
     }  
     console.log('Connected to mySQL ' + db.threadId);  
 });  
+
+module.exports = connection;
 
 app.get('/', (req, res) => {  
     res.send('Hello World!');  
