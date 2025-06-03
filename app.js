@@ -1,64 +1,25 @@
-const express = require ('express')
-const mysql = require('mysql2')
-const app = express()
-const port = 3000
-
-const db = mysql.createConnection({
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: '12345678',
-    database: 'db_movie'
-}) 
-
-db.connect((err) => {  
-    if (err) {  
-        console.error('Error while connecting to mySQL ' + err.stack);  
-        return;  
-    }  
-    console.log('Connected to mySQL ' + db.threadId);  
-});  
-
-module.exports = connection;
-
-app.get('/', (req, res) => {  
-    res.send('Hello World!');  
-});  
-
-app.get('/movies', (req, res) => {  
-    db.query('SELECT * FROM movies', (err, results) => {  
-        if (err) {  
-            return res.status(500).send(err);  
-        }  
-        res.json(results);    
-    });  
-});  
-
- 
-app.get('/movies/:id', (req, res) => {  
-    const movieId = req.params.id;  
+const express = require('express');
+const app = express();
+const cors = require('cors')
+const port = process.env.SERVER_PORT || 3000;
 
 
-    db.query('SELECT * FROM movies WHERE id = ?', [movieId], (err, movieResults) => {  
-        if (err) {  
-            return res.status(500).send(err);  
-        }  
-        if (movieResults.length === 0) {  
-            return res.status(404).send('Film non trovato');  
-        }  
+app.use(cors({ origin: process.env.FE_APP }));
+const moviesRouter = require('./routers/movies');
+const { notFound, errorHandler } = require('./middleware/middlewareerror');
+const imagePathMiddleware = require("./middleware/imagePath");
+app.use(express.json());
+app.use("/movies", moviesRouter);
+app.use(imagePathMiddleware);
+app.use(express.static("public"));
 
-        db.query('SELECT * FROM reviews WHERE movie_id = ?', [movieId], (err, reviewResults) => {  
-            if (err) {  
-                return res.status(500).send(err);  
-            }  
-            res.json({  
-                movie: movieResults[0],  
-                reviews: reviewResults  
-            });  
-        });  
-    });  
-});  
+app.get("/", (req, res) => {
+    res.send("benvenuti nel mio catalogo")
+});
+app.use(notFound);
+app.use(errorHandler);
 
-app.listen(PORT, () => {  
-    console.log(`Server is running on http://localhost:${PORT}`);  
-});  
+
+app.listen(port, () => {
+    console.log(`server del catalogo in ascolto alla porta ${port}`);
+});
